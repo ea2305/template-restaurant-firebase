@@ -8,6 +8,5 @@ module.exports = {
   phone: '+52 0000000000',
   address: 'Sin dirección',
   references: 'Sin referencias de entrega',
-  price: 30,
-  cash: true
+  dishes: []
 }
