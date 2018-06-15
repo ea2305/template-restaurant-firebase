@@ -6,8 +6,10 @@
   "private": true,
   "dependencies": {
     "@nuxtjs/dotenv": "1.1.1",
+    "@nuxtjs/moment": "1.0.0",
     "@nuxtjs/pwa": "latest",
     "@rafamaciel/firebase": "1.0.0",
+    "moment": "2.22.2",
     "nuxt": "latest"
   },
   "scripts": {

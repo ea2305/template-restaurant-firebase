@@ -25,6 +25,8 @@ module.exports = {
   */
   modules: [
     '@nuxtjs/pwa',
+    '@nuxtjs/dotenv',
+    ['@nuxtjs/moment', ['es']],
     {
       src: '@rafamaciel/firebase',
       options: {
