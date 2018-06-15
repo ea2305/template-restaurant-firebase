@@ -11,7 +11,10 @@
     <!-- Show -->
     <section>
       <div v-for="item of dishes" :key="item.id" style="border: solid 1px black; margin: 1em;">
-        <p>{{ item.name }} | {{ item.description }} | {{ item.price }} | {{ item.image }}</p>
+        <figure>
+          <img :src="item.image" alt="" height="100" width="200">
+        </figure>
+        <p>{{ item.name }} | {{ item.description }} | {{ item.price }} </p>
         <p>{{ item.created_at }}</p>
         <nuxt-link :to="`/dishes/${item.id}/edit`">Edit</nuxt-link> | 
         <nuxt-link :to="`/dishes/${item.id}/delete`">Delete</nuxt-link>
@@ -48,7 +51,6 @@ export default {
       // set firebase object to get collection
       let fbObject = snapshot.val()
       this.dishes = objectToArray(fbObject)
-      console.log(this.dishes)
     })
   }
 }
