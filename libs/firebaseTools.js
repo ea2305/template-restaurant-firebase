@@ -2,8 +2,9 @@
  * Firebase Tools
  * FB results management
  * @author Elihu A. Cruz
- * @version 1.0.1
+ * @version 1.0.2
  */
+
 module.exports = {
   /**
    * Get Firebase object and convert into 

@@ -13,8 +13,7 @@
     <br>
     <input type="number" v-model="price" min="1">
     <br>
-    <input type="file" @change="setImage"><br>
-    <img src="" height="200" alt="Image preview...">
+    <image-picker @changeImage="setImage" />
     <br>
     <button @click="send">Insert</button>
     
@@ -25,6 +24,9 @@
 <script>
 // Schema
 import dishScheme from '~/scheme/dish'
+
+// Components
+import imagePicker from '~/components/imagePicker'
 
 export default {
   asyncData ({ app }) {
@@ -38,86 +40,58 @@ export default {
     /**
      * Insert Form
      */
-    send () {
+    async send () {
+      // Way to save
+      // image store
+      this.isLoading = true
+      this.image = await this.storeImage()
+      
       // Data package
       let data = {}
       for (const key in dishScheme) {
         data[key] = this._data[key]
       }
 
-      // way to save
-      if (this.file != null)
-        this.storeWithImage(data)
-      else
-        this.store(data)
-    },
-    /**
-     * Make Dish Persistence in FB
-     * @param {Object} data
-     */
-    store (data) {
       // prepare data and send
       this.$firebase
           .database()
           .ref(`${process.env.APP_NAME}/dishes`)
           .push(data)
-      
+      this.isLoading = false
       this.$router.go(-1)
     },
     /**
      * Make Dish Persistence with img in FB
-     * @param {Object} data
      */
-    storeWithImage (data) {
-      // loader
-      this.isLoading = true
-      // data reference
-      data.path = `/images/dishes/${Date.now()}.${this.file.type.split('/')[1]}`
+    storeImage () {
+      let vm = this
+      return new Promise(function(resolve, reject) {
+        if (vm.file === null) {
+          resolve(null)
+        }
+        // data reference
+        vm.path = `/images/dishes/${Date.now()}.${vm.file.type.split('/')[1]}`
 
-      // filestore
-      let ref = this.$firebase.storage().ref()
-      let upload = ref.child(data.path).put(this.file)
+        // filestore
+        let ref = vm.$firebase.storage().ref()
+        let uploadTask = ref.child(vm.path).put(vm.file)
 
-
-      // Listen for state changes, errors, and completion of the upload.
-      upload.on('state_changed', function(snapshot){
-        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
-      }, (error) => { 
-        console.log(error)
-        this.isLoading = false
-      }, () => {
-        // Handle successful uploads on complete
-        upload.snapshot.ref.getDownloadURL().then((downloadURL) => {
-          data.image = downloadURL
-          // prepare data and send
-          this.$firebase
-              .database()
-              .ref(`${process.env.APP_NAME}/dishes`)
-              .push(data)
-          this.isLoading = false
-          this.$router.go(-1)
-        })
+        uploadTask.on(
+            'state_changed', 
+            function(snapshot) {}, 
+            function(error) { reject(error); }, 
+            function() { resolve(uploadTask.snapshot.downloadURL); }
+        )
       })
     },
     /**
-     * File reading
+     * Set Blob file
+     * @param {Blob} File
      */
-    setImage() {
-      let vm = this
-      let preview = document.querySelector('img');
-      let file = document.querySelector('input[type=file]').files[0];
-      const reader = new FileReader();
-
-      reader.addEventListener("load", function () {
-        preview.src = reader.result;
-      }, false)
-
-      if (file) {
-        this.file = file
-        reader.readAsDataURL(file)
-      }
-    }
+    setImage (file) { this.file = file }
+  },
+  components: {
+    imagePicker
   }
 }
 </script>

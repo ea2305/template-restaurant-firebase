@@ -2,8 +2,8 @@
   <main>
     <nuxt-link to="/dishes">dishes</nuxt-link>
 
-    <br>
-    delete dish
+    <hr>
+    <h1>Delete dish</h1>
     <p>{{ name }}</p>
     delete?
     <br>

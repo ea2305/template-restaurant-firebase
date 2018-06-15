@@ -1,37 +1,30 @@
 <template>
   <main>
     <nuxt-link to="/dishes">back</nuxt-link>
-    <br>
-    edit dish
     <hr>
-    <label for="">form</label>
+    <h1>Edit dish</h1>
+    <br>
+
     <input type="text" v-model="name" max="100">
     <br>
     <input type="text" v-model="description" max="500">
     <br>
     <input type="number" v-model="price" min="1">
     <br>
-    <input type="text" v-model="image">
+    <image-picker :src="image" :height="100" :width="200" @change="setImage"/>
     <br>
     <button @click="update">Update</button>
+
+    {{ (isLoading) ? 'Loading' : ''}}
   </main>
 </template>
 
 <script>
-
-/**
- * Basic schema
- * <code lang="js">
-    {
-      name: 'Platillo sin nombre',
-      description: 'Sin descripción',
-      price: 20,
-      coin: 'MXN',
-      image: 'http://lorempixel.com/400/200/food/1'
-    }
- * </code>
- */
+// Schema
 import dishScheme from '~/scheme/dish'
+
+// components
+import imagePicker from '~/components/imagePicker'
 
 export default {
   /**
@@ -41,6 +34,10 @@ export default {
   asyncData ({ app }) {
     return dishScheme
   },
+  data: () => ({
+    file: null,
+    isLoading: false
+  }),
   /**
    * Update data context with database info
    */
@@ -74,7 +71,15 @@ export default {
       this.$firebase.database().ref().update(updates)
       // redirect
       this.$router.go(-1)
-    }
+    },
+    /**
+     * Set Blob file
+     * @param {Blob} File
+     */
+    setImage (file) { this.file = file }
+  },
+  components: {
+    imagePicker
   }
 }
 </script>
