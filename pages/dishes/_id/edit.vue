@@ -11,7 +11,7 @@
     <br>
     <input type="number" v-model="price" min="1">
     <br>
-    <image-picker :src="image" :height="100" :width="200" @change="setImage"/>
+    <image-picker :src="image" :height="100" :width="200" @changeImage="setImage"/>
     <br>
     <button @click="update">Update</button>
 
@@ -56,21 +56,66 @@ export default {
     /**
      * Update resource info
      */
-    update () {
+    async update () {
       // get id
       const id = this.$route.params.id
+
+      this.isLoading = true
+      this.image = await this.storeImage()
+
+      if (this.path != null) {
+        let ref = this.$firebase.storage().ref()
+        // Create a reference to the file to delete
+        var desertRef = ref.child(this.path)
+
+        // Delete the file
+        desertRef.delete().then(() => {
+          this.isLoading = false
+        }).catch((error) => {
+          console.log(error)
+          this.isLoading = false
+        })
+      }
+
       // data package
       let updates = {}
       let content = {}
       for (const key in dishScheme) {
+        console.log(this._data[key], 'key: ', key)
         content[key] = this._data[key]
       }
       // prepare package
       updates[`${process.env.APP_NAME}/dishes/${id}`] = content
       // insert
       this.$firebase.database().ref().update(updates)
+      this.isLoading = false
       // redirect
       this.$router.go(-1)
+    },
+    /**
+     * Make Dish Persistence with img in FB
+     */
+    storeImage () {
+      let vm = this
+      return new Promise(function(resolve, reject) {
+        if (vm.file === null) {
+          vm.path = 'none'
+          resolve(vm.image)
+        }
+        // data reference
+        vm.path = `/images/dishes/${Date.now()}.${vm.file.type.split('/')[1]}`
+
+        // filestore
+        let ref = vm.$firebase.storage().ref()
+        let uploadTask = ref.child(vm.path).put(vm.file)
+
+        uploadTask.on(
+            'state_changed',
+            function(snapshot) {},
+            function(error) { reject(error) },
+            function() { resolve(uploadTask.snapshot.downloadURL) }
+        )
+      })
     },
     /**
      * Set Blob file

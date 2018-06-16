@@ -1,8 +1,6 @@
 <template>
   <main>
     <nuxt-link to="/dishes">back</nuxt-link>
-    <br>
-    make dish
     <hr>
 
     <!-- Template Form -->
@@ -67,7 +65,8 @@ export default {
       let vm = this
       return new Promise(function(resolve, reject) {
         if (vm.file === null) {
-          resolve(null)
+          vm.path = 'none'
+          resolve(vm.image)
         }
         // data reference
         vm.path = `/images/dishes/${Date.now()}.${vm.file.type.split('/')[1]}`
